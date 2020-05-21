@@ -889,7 +889,7 @@ if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
 fi
 
 # Restart SSH daemon
-systemctl restart ssh
+service cron restart ssh
 
 # Disable AWStats cron
 rm -f /etc/cron.d/awstats
@@ -1353,7 +1353,7 @@ if [ "$postgresql" = 'yes' ]; then
     echo "(*) Configuring PostgreSQL database server..."
     ppass=$(gen_pass)
     cp -f $HESTIA_INSTALL_DIR/postgresql/pg_hba.conf /etc/postgresql/*/main/
-    systemctl restart postgresql
+    service postgresql restart
     sudo -iu postgres psql -c "ALTER USER postgres WITH PASSWORD '$ppass'" > /dev/null 2>&1
 
     # Configuring phpPgAdmin
@@ -1382,7 +1382,7 @@ if [ "$named" = 'yes' ]; then
     if ! grep --quiet lxc /proc/1/environ; then
         systemctl status apparmor > /dev/null 2>&1
         if [ $? -ne 0 ]; then
-            systemctl restart apparmor >> $LOG
+            service apparmor restart >> $LOG
         fi
     fi
     if [ "$release" = '20.04' ]; then
@@ -1543,10 +1543,10 @@ if [ "$dovecot" = 'yes' ] && [ "$exim" = 'yes' ] && [ "$mysql" = 'yes' ]; then
 
     # Restart services
     if [ "$apache" = 'yes' ] && [ "$release" != '20.04' ]; then
-        systemctl restart apache2 >> $LOG
+        service apache2 restart >> $LOG
     fi
     if [ "$nginx" = 'yes' ]; then
-        systemctl restart nginx >> $LOG
+        service nginx restart >> $LOG
     fi
 fi
 
@@ -1686,7 +1686,7 @@ if [ "$apache" = 'yes' ] && [ "$nginx"  = 'yes' ] ; then
     echo "</IfModule>" >> remoteip.conf
     sed -i "s/LogFormat \"%h/LogFormat \"%a/g" /etc/apache2/apache2.conf
     a2enmod remoteip >> $LOG
-    systemctl restart apache2
+    service apache2 restart
 fi
 
 # Configuring MariaDB host
@@ -1707,7 +1707,7 @@ check_result $? "can't create $servername domain"
 export SCHEDULED_RESTART="yes"
 command="sudo $HESTIA/bin/v-update-sys-queue restart"
 $HESTIA/bin/v-add-cron-job 'admin' '*/2' '*' '*' '*' '*' "$command"
-systemctl restart cron
+service cron restart cron
 
 command="sudo $HESTIA/bin/v-update-sys-queue disk"
 $HESTIA/bin/v-add-cron-job 'admin' '15' '02' '*' '*' '*' "$command"
