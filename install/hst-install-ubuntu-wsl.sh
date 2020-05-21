@@ -1183,6 +1183,7 @@ if [ "$apache" = 'yes' ]; then
     update-rc.d apache2 defaults > /dev/null 2>&1
     service apache2 start >> $LOG
     check_result $? "apache2 start failed"
+fi
 
 
 #----------------------------------------------------------#
